@@ -130,3 +130,6 @@ dmypy.json
 
 # Data Folder is Realll big on this one
 data/.*
+
+# That dag pesky .DS_Store
+**/.DS_Store
