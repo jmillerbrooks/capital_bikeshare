@@ -129,7 +129,7 @@ dmypy.json
 .pyre/
 
 # Data Folder is Realll big on this one
-data/.*
+data/*
 
 # That dag pesky .DS_Store
 **/.DS_Store

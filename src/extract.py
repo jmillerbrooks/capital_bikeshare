@@ -5,6 +5,7 @@ import itertools
 import datetime as dt
 import os
 import shutil
+import pandas as pd
 
 ### Section One Download and Extract the raw zipfiles of trip data ###
 
@@ -29,10 +30,15 @@ def build_paths(start_month=1, end_month=today.month - 2, end_year=today.year, s
     year_range = range(start_year, end_year + 1)
     months = build_months()
     
-    paths_2018 = [f'https://s3.amazonaws.com/capitalbikeshare-data/2018{month}-capitalbikeshare-tripdata.{csv_url}' for month in months]
-    paths_2019 = [f'https://s3.amazonaws.com/capitalbikeshare-data/2019{month}-capitalbikeshare-tripdata.{csv_url}' for month in months]
-    paths_2020 = [f'https://s3.amazonaws.com/capitalbikeshare-data/2020{month}-capitalbikeshare-tripdata.{csv_url}' for month in months[0:7]]
-    
+    if csv_url == 'zip':
+        paths_2018 = [f'https://s3.amazonaws.com/capitalbikeshare-data/2018{month}-capitalbikeshare-tripdata.{csv_url}' for month in months]
+        paths_2019 = [f'https://s3.amazonaws.com/capitalbikeshare-data/2019{month}-capitalbikeshare-tripdata.{csv_url}' for month in months]
+        paths_2020 = [f'https://s3.amazonaws.com/capitalbikeshare-data/2020{month}-capitalbikeshare-tripdata.{csv_url}' for month in months[0:7]]
+    # if csv_url equals csv
+    else:
+        paths_2018 = [f'../data/raw/2018{month}-capitalbikeshare-tripdata.{csv_url}' for month in months]
+        paths_2019 = [f'../data/raw/2019{month}-capitalbikeshare-tripdata.{csv_url}' for month in months]
+        paths_2020 = [f'../data/raw/2020{month}-capitalbikeshare-tripdata.{csv_url}' for month in months[0:7]]
     return paths_2018, paths_2019, paths_2020
     
     
@@ -79,9 +85,13 @@ def clean_dir(dir_path='../data/raw/'):
     for file in to_replace:
         cleaned = file + '.csv'
         os.rename(file, cleaned)
+    
+    to_format = [dir_path + file for file in files if '_' in file]
+    for file in to_format:
+        if 'ipynb' not in file:
+            formatted = to_format[0].replace('_', '-')
+            os.rename(file, formatted)
     pass
-    
-    
     
 
 def build_raw_data():
@@ -97,3 +107,20 @@ def build_raw_data():
     
     clean_dir()
     pass
+
+def compile_paths(*args):
+    """accepts n lists, returns 1 list"""
+    paths = [*itertools.chain(*args)]
+    return paths
+
+
+
+
+
+def import_csvs(csv_paths):
+    """Accepts a list of csv_paths from data/raw/
+    Returns a list of DataFrames from these paths"""
+    raw_dfs = [*map(pd.read_csv, csv_paths)]
+    return raw_dfs
+
+# def 

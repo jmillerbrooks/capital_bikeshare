@@ -48,10 +48,10 @@ def apply_anc(row, side='start'):
 def anc_cols(df):
     """DOCSTRING"""    
     # Create 'ANC_start' column with the 
-    df['ANC_start'] = df.apply(lambda x: apply_anc(x, side='start'), axis=1)
+    df['ANC-start'] = df.apply(lambda x: apply_anc(x, side='start'), axis=1)
 
     # Create 'ANC_end' column with the 
-    df['ANC_end'] = df.apply(lambda x: apply_anc(x, side='end'), axis=1)
+    df['ANC-end'] = df.apply(lambda x: apply_anc(x, side='end'), axis=1)
     return df
 
 def to_geo(df, ANC=True):
@@ -61,13 +61,13 @@ def to_geo(df, ANC=True):
     # Call point series on start_lng/start_lat to generate a GeoSeries of start_points indexed by started_at
     start_points = point_series(lng_col=df['start_lng'] \
                                 , lat_col=df['start_lat'] \
-                                , name='start_coord' \
+                                , name='coord-start' \
                                 , index_col=df['ride_id'])
     
     # Call point series on end_lng/end_lat to generate a GeoSeries of end_points indexed by started_at
     end_points = point_series(lng_col=df['end_lng'] \
                               , lat_col=df['end_lat'] \
-                              , name='end_coord' \
+                              , name='coord-end' \
                               , index_col=df['ride_id'])
     
     # Merge start/endpoints with df (cleaned_ebikes), drop original lat/lng columns
@@ -83,11 +83,22 @@ def to_geo(df, ANC=True):
     
     
     # Convert to GeoDataFrame for easier spatial operations, set default geometry to the start_coord column
-    geo_ebikes = gpd.GeoDataFrame(geo_ebikes, geometry='start_coord')
+    geo_ebikes = gpd.GeoDataFrame(geo_ebikes, geometry='coord-start')
     
     return geo_ebikes
 
-
+def rename_columns(df, legacy=False):
+    """DOCSTRING
+    build out legacy=True to rename the columns of the old version of the data
+    """
+    df = df.rename(
+        columns={
+            'started_at':'time-start',
+            'ended_at':'time-end',
+            'start_station_name':'station_name-start',
+            'end_station_name':'station_name-end'
+        })
+    return df
 
 ##Ugly dude. Ugly. Split this up.
 def clean_frame(df):
@@ -142,8 +153,11 @@ def clean_frame(df):
     # Remove start_station_id and end_station_id, this information is duplicated in station name cols, as well as lng/lat combination
     cleaned_df = cleaned_df.drop(['start_station_id', 'end_station_id'], axis=1)
     
+    cleaned_df = rename_cols(cleaned_df)
+    
     # Return the cleaned df
     return cleaned_df
+
 
 
 def load_clean_full():
