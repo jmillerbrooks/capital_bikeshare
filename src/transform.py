@@ -21,7 +21,7 @@ def net_gain_loss(location, df, col='ANC'):
     return np.select(conditions, values)
 
 ### Figure out how computationally expensive it would be to store all results including the exogenous columns
-def plus_minus_locations(df, col='ANC'):
+def to_plus_minus(df, col='ANC'):
     """DOCSTRING, accepts a location column, returns a df where the columns correspond to
     the values of the col passed in params, values of each column are a timeseries of gain/loss
     values one of (-1,0,1) yielded from net_gain_loss_location"""
