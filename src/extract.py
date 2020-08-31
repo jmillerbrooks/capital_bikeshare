@@ -29,9 +29,9 @@ def build_paths(start_month=1, end_month=today.month - 2, end_year=today.year, s
     year_range = range(start_year, end_year + 1)
     months = build_months()
     
-    paths_2018 = [f'https://s3.amazonaws.com/capitalbikeshare-data/2018{month}-capitalbikeshare-tripdata.zip' for month in months]
-    paths_2019 = [f'https://s3.amazonaws.com/capitalbikeshare-data/2019{month}-capitalbikeshare-tripdata.zip' for month in months]
-    paths_2020 = [f'https://s3.amazonaws.com/capitalbikeshare-data/2020{month}-capitalbikeshare-tripdata.zip' for month in months[0:7]]
+    paths_2018 = [f'https://s3.amazonaws.com/capitalbikeshare-data/2018{month}-capitalbikeshare-tripdata.{csv_url}' for month in months]
+    paths_2019 = [f'https://s3.amazonaws.com/capitalbikeshare-data/2019{month}-capitalbikeshare-tripdata.{csv_url}' for month in months]
+    paths_2020 = [f'https://s3.amazonaws.com/capitalbikeshare-data/2020{month}-capitalbikeshare-tripdata.{csv_url}' for month in months[0:7]]
     
     return paths_2018, paths_2019, paths_2020
     
