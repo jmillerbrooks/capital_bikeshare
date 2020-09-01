@@ -3,7 +3,7 @@ import pandas as pd
 import geopandas as gpd
 import json
 from shapely.geometry import Point
-from src.get_data import anc_gdf, dc_polygon, load_station_info, load_outside_regions
+from cabi.etl.get_data import anc_gdf, dc_polygon, load_station_info, load_outside_regions
 
 
 gdf = anc_gdf()
