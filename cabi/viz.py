@@ -3,11 +3,15 @@ import geopandas as gpd
 import numpy as np
 import matplotlib.pyplot as plt
 from statsmodels.graphics.tsaplots import plot_pacf, plot_acf
+from cabi.etl.get_data import anc_gdf
+
+gdf = anc_gdf()
 
 def plot_trips(df):
     ax = gdf.plot(figsize=(10, 10), alpha=0.5, edgecolor='k')
     sns.scatterplot(x='start_lng', y='start_lat', data=df, ax=ax)
     pass
+
 
 def plot_acf_pacf(series, nlags):
     plt.figure(figsize=(15,10))

@@ -6,9 +6,21 @@ from shapely.geometry import Point
 from cabi.etl.get_data import anc_gdf, dc_polygon, load_station_info, load_outside_regions
 
 
+
 gdf = anc_gdf()
 stations_df = load_station_info()
 outside_regions = load_outside_regions()
+dc_boundary = dc_polygon()
+
+
+def point_series(lng_col, lat_col, name, index_col):
+    """Takes 2 pandas series (don't pass a df) and returns a GeoSeries of shapely POINT objects, indexed by index_col"""
+    # Zip lng/lat together, and make a point out of each 
+    points = gpd.GeoSeries([Point(lng, lat) for lng, lat in zip(lng_col, lat_col)] \
+                           , name=name \
+                           , index=index_col)
+    return points
+
 
 
 def hash_point(func):
@@ -38,7 +50,6 @@ def in_polygon(point, polygon):
     """
     return point.within(polygon)
 
-# Use the in_polygon function to return the polygon a point is within from a series of polygons
 
 def which_polygon(point, polygons):
     """Calls in_polygon and returns a pandas Series of boolean values for whether
@@ -50,7 +61,6 @@ def which_polygon(point, polygons):
     Returns: (Series) a pandas Series of boolean values equivalent in length to [polygons]"""
     point_func = partial(in_polygon, point)
     return pd.Series(polygons.map(point_func))
-
 
 @hash_point
 @lru_cache()
@@ -102,16 +112,52 @@ def station_to_anc(station):
     return result
     
 
-
-
 def station_anc_dict():
     """DOCSTRING"""
     
     station_anc_dict = {name: station_to_anc(name) for name in stations_df.name}
     return station_anc_dict
+
+anc_dict = station_anc_dict()
+station_keys = anc_dict.keys()
+
+
+def anc_from_dict(station):
+    """DOCSTRING"""
+    # For each observation in a df, if there exists a station
+    # pull the ANC from station_dict
+    if station in station_keys:
+        result = anc_dict[station]
+    else:
+        result = None
     
+    return result    
+
+def station_coords():
+    """DOCSTRING
+    Returns a Dataframe of Stations Currently on CABI API
+    with lon/lat columns formatted into one coord_station column
+    """
+    curr_station_df = stations_df
+
+    coords = point_series(
+        curr_station_df['lon'],
+        curr_station_df['lat'],
+        name='coord_station',
+        index_col=curr_station_df['name'])
+
+    station_coords = curr_station_df.merge(
+        coords,
+        on='name'
+    )
+
+    station_coords = station_coords.drop(\
+                                        ['region_id', 'lat', 'lon'],
+                                         axis = 1)
+
+    station_coords = gpd.GeoDataFrame(station_coords, geometry='coord_station')
     
-    
+    return station_coords
 
 def in_dc(point):
     """Simple wrapper on the within method of shapely points
@@ -120,6 +166,5 @@ def in_dc(point):
     
     Returns: (bool) whether or not the point is within DC expressed as a boolean
     """
-    dc_polygon = dc_polygon()
     
-    return point.within(dc_polygon) 
+    return point.within(dc_boundary) 

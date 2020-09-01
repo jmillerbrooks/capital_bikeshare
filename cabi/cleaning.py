@@ -2,12 +2,8 @@ import pandas as pd
 import numpy as np
 from shapely.geometry import Point
 import geopandas as gpd
-from cabi.utils import which_anc, station_anc_dict
-from cabi.etl.get_data import anc_gdf
+from cabi.geometry import point_series, anc_from_dict, which_anc
 
-gdf = anc_gdf()
-anc_dict = station_anc_dict()
-station_keys = anc_dict.keys()
 
 ##Ugly dude. Ugly. Split this up.
 def clean_frame(df):
@@ -51,24 +47,8 @@ def clean_frame(df):
     # Return the cleaned df
     return cleaned_df
 
-def point_series(lng_col, lat_col, name, index_col):
-    """Takes 2 pandas series (don't pass a df) and returns a GeoSeries of shapely POINT objects, indexed by index_col"""
-    # Zip lng/lat together, and make a point out of each 
-    points = gpd.GeoSeries([Point(lng, lat) for lng, lat in zip(lng_col, lat_col)] \
-                           , name=name \
-                           , index=index_col)
-    return points
 
-def anc_from_dict(station):
-    """DOCSTRING"""
-    # For each observation in a df, if there exists a station
-    # pull the ANC from station_dict
-    if station in station_keys:
-        result = anc_dict[station]
-    else:
-        result = None
-    
-    return result
+
 
 def apply_anc(row, side='start'):
     """DOCSTRING"""

@@ -83,7 +83,7 @@ def anc_gdf():
     return anc_gdf
 
 def load_dc_boundary():
-    # Downloads ANC JSON from Open Data DC
+    # Downloads DC Boundary JSON from Open Data DC
     url = "https://opendata.arcgis.com/datasets/7241f6d500b44288ad983f0942b39663_10.geojson"
     response = requests.get(url).json()
     return response
