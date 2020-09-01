@@ -1,3 +1,10 @@
+"""
+Load Module Interacts with PostGIS/Postgresql databases in this project
+Includes functions for loading data from the existing DB with sql queries
+once built as well as loading transformed data into tables in the CABI db.
+"""
+
+
 import pandas as pd
 import geopandas as gpd
 import sqlalchemy
