@@ -6,7 +6,6 @@ from statsmodels.tsa.holtwinters import ExponentialSmoothing
 from statsmodels.tsa.statespace.sarimax import SARIMAX
 
 
-
 def test_stationarity(series, print_vals=True):
     """Simple wrapper around adfuller that prints in more readable format
     Adapted slightly from Jason Brownlee's machinelearningmastery.com
@@ -50,7 +49,18 @@ def RMSE(y_true, y_pred, last_only=True):
     
     return rmse
 
-def sarima_configs(seasonal=[0]):
+def fit_sarimax(series, cfg = [(0,1,1), (0,1,1,24), 'n'], test_start = '2020-07-01 00:00:00'):
+    """DOCSTRING accepts a series and SARIMAX configuration, returns model object, train/test sets"""
+    train = hourly[hourly.index < test_start]
+    test = hourly[test_start:]
+    
+    model = SARIMAX(train, order=cfg[0], seasonal_order=cfg[1], trend=cfg[2])
+    
+    return train, test, model
+    
+
+
+def sarima_configs(seasonal=[1, 24, 168]):
     """build configuration list to do light gridsearch of SARIMAX models, function is from Jason Brownlee's website:
     machinelearningmastery.com """
     

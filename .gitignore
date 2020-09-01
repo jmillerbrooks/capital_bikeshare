@@ -133,3 +133,7 @@ data/*
 
 # That dag pesky .DS_Store
 **/.DS_Store
+
+# Local Variables
+src/load.py
+models/*

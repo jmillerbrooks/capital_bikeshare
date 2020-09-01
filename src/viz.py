@@ -16,9 +16,9 @@ def plot_acf_pacf(series, nlags):
     plt.subplot(212)
     plot_pacf(series, lags=nlags, ax=plt.gca())
     plt.show()
-    pass
 
-def plot_series(series, train_end=None, preds=None, fig_size=(10,10)):
+
+def plot_series(series, train_end=None, preds=[], fig_size=(10,10)):
     """Wrapper to quickly produce a plot of a time series, with
     optional params train_end (datetime appearing in index of series/ preds)
     and preds to visualize forecasting as well.
