@@ -135,6 +135,5 @@ data/*
 **/.DS_Store
 
 # Local Variables
-cabi/etl/load.py
 models/*
 cabi/etl/config.py
