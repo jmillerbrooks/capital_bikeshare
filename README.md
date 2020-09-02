@@ -83,7 +83,8 @@ There has been a fair amount of work done (INSERT LINKS) modeling various aspect
 
 In light of this development, it seems the future modeling problem may well be centered more around modeling more abstract geographic locations than individual stations. We attempt a first approach at a geographically centered solution, by prototyping on the existing Advisory Neighborhood Commission boundaries, which divide the District of Columbia into 40 unique geographies. Within each ANC we then attempt to answer the following three items described below.
 
-**INSERT ANC MAP**
+![Empty Bike Dock][empty-dock]
+<sub>Capital Bikeshare Station Locations displayed over map of DC Advisory Neighborhood Commissions </sub>
 
 
 ### Approach
@@ -193,3 +194,4 @@ Project Link: [https://github.com/jmillerbrooks/capital_bikeshare](https://githu
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=flat-square&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/jmillerbrooks
 [empty-dock]: figures/capital_bikeshare_shortage.jpeg
+[stations-by-anc]: figures/stationsByANC.png
