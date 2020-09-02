@@ -56,5 +56,29 @@ def plot_series(series, train_end=None, preds=[], fig_size=(10,10)):
     
     return fig, ax
 
+def residual_plot(model):
+    """DOCSTRING, wrapper to quickly plot residuals for a model object
+    Accepts fitted model object
+    Returns fig, ax with the residual plot
+    """
+    
+    residuals = model.resid.values
+    pred_vals = model.predict().values
+
+    fig, ax = plt.subplots(figsize=(10,10))
+
+    plt.scatter(x=pred_vals, y=residuals, ax=ax)
+    
+    # Use get params or something to label this
+    ax.set_title('Residual Plot of Model Predictions')
+    ax.set_xlabel('Prediction (change in number of bikes)')
+    ax.set_ylabel('Residual (Error) - difference from actual change in number of bikes')
+    
+    plt.show();
+    
+    return fig, ax
+
+
+
 
         
