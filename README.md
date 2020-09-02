@@ -52,6 +52,16 @@
 </p>
 
 
+## Repository Navigation
+
+[Notebooks][notebooks]
+
+[Package Files][cabi]
+
+[Figures][figures]
+
+[Slide Deck][presentation-folder]
+
 
 <!-- TABLE OF CONTENTS -->
 ## Table of Contents
@@ -59,11 +69,8 @@
 * [The Business Problem](#business-problem)
   * [Approach](#approach)
 * [Data Science Process](#data-science-process)
-  * [Prerequisites](#prerequisites)
-  * [Installation](#installation)
-* [Usage](#usage)
-* [Roadmap](#roadmap)
-* [Contributing](#contributing)
+* [Results](#results)
+* [Future Improvement](#future-improvement)
 * [License](#license)
 * [Contact](#contact)
 * [Acknowledgements](#acknowledgements)
@@ -98,57 +105,46 @@ Within each ANC we seek to answer:
 
 
 <!-- DATA SCIENCE PROCESS -->
-## Data Science Process
+## Data Science Process and Setup
 
-To get a local copy up and running follow these simple steps.
+The data were obtained from CaBi's <a href="https://s3.amazonaws.com/capitalbikeshare-data/index.html"> historical ride sets.</a> The steps to import clean and transform them can be found in the notebooks "Setup" and "ETL", as well as in the cabi package script: cleaning, and the submodule "etl". The setup portion of the analysis can be reproduced readily with the following steps.
 
-### Prerequisites
+1. Initiate a PostgreSQL database. If you do not have PostgreSQL, it can be installed via homebrew on mac or from https://www.postgresql.org/download/
+2. Clone this repository
+3. Create a file called "config.py" in the cabi/etl directory with the following items filled in according to your postgres instance:
+    def connection_params():
+        return """postgresql://\<username>:\<password>@\<address>:\<port>/\<database>"""
 
-This is an example of how to list things you need to use the software and how to install them.
-* npm
-```sh
-npm install npm@latest -g
-```
-
-### Installation
-
-1. Clone the repo
-```sh
-git clone https://github.com/jmillerbrooks/capital_bikeshare.git
-```
-2. Install NPM packages
-```sh
-npm install
-```
+4. Navigate to the home folder of the repository directory from your command line.
+5. Run "python3 setup.py install" -- This will install the project 'cabi' as a package so that you can use all functions accross all notebooks  
+6. Run the cells in "Setup.ipynb" -- This will pull the raw csvs from source (warning, this is a large amount of data), you could also only pull the last few months instead without sacrificing results, as we have not yet modeled on the data prior to that.
+7. Run the cells in ETL. This will reshape the data and load into postgres.
+8. Modeling and Analysis of models can be found in "Modeling" and "Scratch" notebooks.
+    
+Our modeling approach is described in the Modeling and Scratch files. We attempted to fit Holt-Winters and SARIMA models for each ANC, initially selecting parameters based off of AIC score, and then best models based on RMSE. Our baseline model for comparison was a persistence model based off of a lag of six hours, since we attempted to predict spikes in bike over or undersupply over six hour periods. The seasonal component to each model was set at the frequency equivalent to a one day period for each set, as there is a pronounced seasonal daily component in each ANC. Our cross validation procedure was aided by sklearn's TimeSeriesSplit.
 
 
 
-<!-- USAGE EXAMPLES -->
-## Usage
-
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
-
-_For more examples, please refer to the [Documentation](https://example.com)_
 
 
+<!-- Results -->
+## Results
 
-<!-- ROADMAP -->
-## Roadmap
-
-See the [open issues](https://github.com/jmillerbrooks/capital_bikeshare/issues) for a list of proposed features (and known issues).
+Based off of our modeling, we selected a tuned SARIMA model that best described each Advisory Neighborhood Commission in DC. We recommend the implementation of the models in tandem to allow for areas of predicted oversupply to be rebalanced to areas of predicted shortage.
+    
+![Example Model Results][example-model-results]
+<sub>Example Model Forecast </sub>
 
 
 
-<!-- CONTRIBUTING -->
-## Contributing
+<!-- Future Improvement -->
+## Future Improvement
 
-Contributions are what make the open source community such an amazing place to be learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+Please find areas for future improvement in the slide deck in the [Presentation Folder][presentation-folder]
 
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+
+
+
 
 
 
@@ -171,9 +167,7 @@ Project Link: [https://github.com/jmillerbrooks/capital_bikeshare](https://githu
 <!-- ACKNOWLEDGEMENTS -->
 ## Acknowledgements
 
-* []()
-* []()
-* []()
+Please find sources in the slide deck in the [Presentations Folder][presentation-folder]
 
 
 
@@ -195,3 +189,8 @@ Project Link: [https://github.com/jmillerbrooks/capital_bikeshare](https://githu
 [linkedin-url]: https://linkedin.com/in/jmillerbrooks
 [empty-dock]: figures/capital_bikeshare_shortage.jpeg
 [stations-by-anc]: figures/stationsByANC.png
+[example-model-results]: figures/sample_prediction1A.png
+[presentation-folder]: /presentation
+[notebooks]: /notebooks
+[cabi]: /cabi
+[figures]: /figures
