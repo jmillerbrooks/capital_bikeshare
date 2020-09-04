@@ -47,11 +47,7 @@ def to_plus_minus(df, col='ANC'):
 def cumulative_change(df, window_size):
     """DOCSTRING window_size must be an int or offset passable to pandas.DataFrame.rolling(window)
     intended for use as an offset"""
-    rolling_df = pd.concat([ \
-                            df[col].rolling(window_size) \
-                            .sum() \
-                            for col in df.columns] \
-                           , axis=1)
+    rolling_df = df.rolling(window_size).sum()
     return rolling_df
 
 
