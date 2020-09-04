@@ -1,6 +1,9 @@
 import pandas as pd
 import numpy as np
 from scipy.stats import mode
+from functools import partial
+
+
 
 def net_gain_loss(location, df, col='ANC'):
     """Return an np.array of the effect of ride on a given column value's net gain or loss in 1 0 -1 VALUES
@@ -51,8 +54,8 @@ def cumulative_change(df, window_size):
     return rolling_df
 
 
-def snap_to_interval(series, interval):
-    """DOCSTRING take mode accross each one hour period if there are values, if no values, presumed change is zero"""
+def series_to_interval(series, interval):
+    """DOCSTRING take mode accross each one hour period if there are values, if no values, i.e. mode returns na like, presumed change is zero"""
     regular = series.resample(
         interval
     ).apply(
@@ -61,3 +64,7 @@ def snap_to_interval(series, interval):
         else 0)
     
     return regular
+
+def snap_to_interval(df, interval):
+    change_func = partial(series_to_interval, interval=interval)
+    return df.apply(change_func)
