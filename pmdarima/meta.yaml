@@ -1,0 +1,69 @@
+{% set name = "pmdarima" %}
+{% set version = "1.7.1" %}
+
+package:
+  name: "{{ name|lower }}"
+  version: "{{ version }}"
+
+source:
+  url: "https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz"
+  sha256: b187a6524a470a1cc5866083c0c9e3f18a14037d99936d55d7474e48f4ea451e
+
+build:
+  number: 0
+  script: "{{ PYTHON }} -m pip install . -vv"
+
+requirements:
+  build:
+    - numpy >=1.17.3
+    - git                  [not win]
+    - m2-git               [win]
+    - posix                [win]
+    - m2w64-toolchain      [win]
+    - clang_osx-64         [osx]
+    - {{ compiler('c') }}
+  host:
+    - cython >=0.29,<0.29.18
+    - joblib >=0.11
+    - numpy >=1.17.3
+    - pandas >=0.19
+    - pip
+    - python
+    - scikit-learn >=0.22
+    - scipy >=1.3.2
+    - statsmodels >=0.11
+    - urllib3
+  run:
+    - cython >=0.29,<0.29.18
+    - joblib >=0.11
+    - numpy >=1.17.3
+    - pandas >=0.19
+    - python
+    - scikit-learn >=0.22
+    - scipy >=1.3.2
+    - statsmodels >=0.11
+    - urllib3
+
+test:
+  commands:
+    - pip install pytest pytest-mpl pytest-benchmark
+    - pytest --showlocals --durations=20 --pyargs pmdarima --benchmark-skip
+    - python -c "import pmdarima; pmdarima.show_versions()"
+
+about:
+  home: "http://alkaline-ml.com/pmdarima"
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE
+  summary: "Python's forecast::auto.arima equivalent"
+  description: "A statistical library designed to fill the void in Python's time series analysis capabilities, including the equivalent of R's auto.arima function."
+  doc_url: "http://alkaline-ml.com/pmdarima"
+  dev_url: "https://github.com/alkaline-ml/pmdarima"
+
+extra:
+  maintainers:
+    - tgsmith61591
+    - aaronreidsmith
+    - charlesdrotar
+  recipe-maintainers:
+    - aaronreidsmith
