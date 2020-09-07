@@ -61,7 +61,8 @@ def series_to_interval(series, interval):
     ).apply(
         lambda x:
         mode(x)[0] if mode(x)[0].size > 0
-        else 0)
+        else np.nan
+    ).interpolate('time')
     
     return regular
 
