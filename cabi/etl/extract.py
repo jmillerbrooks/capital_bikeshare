@@ -123,4 +123,48 @@ def import_csvs(csv_paths):
     raw_dfs = [*map(pd.read_csv, csv_paths)]
     return raw_dfs
 
-# def 
+def load_ancs():
+    # Downloads ANC JSON from Open Data DC
+    url = "https://opendata.arcgis.com/datasets/fcfbf29074e549d8aff9b9c708179291_1.geojson"
+    response = requests.get(url)
+    content = response.json()
+    return content
+
+def anc_gdf():
+    """Return a GeoDataFrame of DC ANC geometries (Advisory Neighborhood Commissions)"""
+    anc_json = load_ancs()
+    anc_gdf = gpd.GeoDataFrame.from_features(anc_json["features"])
+    return anc_gdf
+
+def load_dc_boundary():
+    # Downloads DC Boundary JSON from Open Data DC
+    url = "https://opendata.arcgis.com/datasets/7241f6d500b44288ad983f0942b39663_10.geojson"
+    response = requests.get(url).json()
+    return response
+    
+def dc_polygon():
+    """Return a GeoDataFrame of DC ANC geometries (Advisory Neighborhood Commissions)"""
+    dc_json = load_dc_boundary()
+    gdf = gpd.GeoDataFrame.from_features(dc_json["features"])
+    return gdf.geometry[0]
+
+def load_outside_regions():
+    """returns a list of region ids corresponding to regions not in DC
+    can be used to quickly subset stations not in DC, to avoid more expensive
+    geographic lookup computations"""
+    system_regions_response = requests.get('https://gbfs.capitalbikeshare.com/gbfs/en/system_regions.json')
+    system_regions = system_regions_response.json()
+    regions_df = pd.DataFrame(system_regions['data']['regions'])#.region_id
+    outside_regions = regions_df.loc[\
+                                     ~regions_df.region_id
+                                     .isin(['42', '128', '48'])
+                                     , 'region_id']
+    return list(outside_regions.values)
+    
+def load_station_info():
+    """DOCSTRING"""
+    stations_info_response = requests.get('https://gbfs.capitalbikeshare.com/gbfs/en/station_information.json')
+    stations_info = stations_info_response.json()
+    stations_info_df = pd.DataFrame(stations_info['data']['stations'])
+    stations_info_df = stations_info_df[['name', 'region_id', 'lat', 'lon']]
+    return stations_info_df
