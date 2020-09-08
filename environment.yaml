@@ -1,7 +1,7 @@
 name: cabi-env
 channels:
-  - defaults
   - conda-forge
+  - defaults
 dependencies:
   - conda-build
   - joblib>=0.11
