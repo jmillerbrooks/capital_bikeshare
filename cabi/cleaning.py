@@ -4,8 +4,125 @@ from shapely.geometry import Point
 import geopandas as gpd
 from cabi.geometry import point_series, anc_from_dict, which_anc
 
+## To Check Join Compatibility of raw dfs
+def check_col_names(df1, df2, cols_only=True):
+    """Return True or False indicating whether or not the column names are the same between two dataframes"""
+    # Default is that columns are passed, for ease of use
+    # with check_col_list below
+    # will return truth value for each column pair, so we achieve
+    # one truth value for the whole array/list by calling all
+    if cols_only:
+        result = all(df1 == df2)
+    # Also possible to pass two dataframes directly by specifying
+    # cols_only=False
+    else:
+        result = all(df1.columns == df2.columns)
+    # Return True/False result
+    return result
 
-##Ugly dude. Ugly. Split this up.
+def check_col_list(df_list):
+    """Accepts list of dataframes, calls check_col_names on the df columns
+    returns False if any False values, true otherwise"""
+    
+    # Build dict of df columns keyed by position in list
+    # Only pull the columns to save some space
+    # Save as dict to make returning the mismatches easier on
+    # later edit
+    col_dict = {i: df.columns for i, df in enumerate(df_list)}
+    
+    # build list of keys for cleaner reading below
+    keys = list(col_dict.keys())
+    
+    
+    # Because we are only interested in if there are any False values
+    # we can compare one df to all others by the logic that if a==b,
+    # a==c, a==d, etc. then a==b==c==d and so on
+    results = [check_col_names(col_dict[0], col_dict[key]) for key in keys]
+    
+    # return True only if all are true
+    
+    return all(results)
+
+def drop_legacy_cols(df):
+    """Accepts df in raw format from prior to April of 2020
+    Returns same df without the columns ['Duration', 'Start station number', 
+    'End station number', 'Bike number'] Duration is created later in
+    cleaning process to ensure consistent results Station Number cols
+    duplicate information in station name cols and are of different 
+    format to current numbering scheme, bike number is unavailable in
+    current datasets"""
+    return df.drop(['Duration', 'Start station number', 'End station number', 'Bike number'], axis=1)
+
+
+def rename_legacy_cols(df):
+    """Renames columns of dataframe in format consistent with the current naming scheme"""
+    return df.rename(
+        columns={'Start date':'started_at',
+                 'End date': 'ended_at',
+                 'Start station':'start_station_name',
+                 'End station': 'end_station_name',
+                 'Member type': 'member_casual'}
+    )
+
+def legacy_to_recent(df):
+    """Returns df formatted in the same style as employed from April of 2020
+    by calling drop/rename legacy cols funcs in succession, adding a rideable_type
+    and correcting type-case of the member_casual column 
+    """
+    new_df = drop_legacy_cols(df)
+    new_df = rename_legacy_cols(new_df)
+    # impute rideable type since ebikes were not rolled out until after
+    # any of these data sets were released
+    new_df['rideable_type'] = 'docked_bike'
+    # convert values to lower case
+    new_df['member_casual'] = new_df.member_casual.str.lower()
+    
+    return new_df
+
+def join_legacy(df_list):
+    """Returns one DataFrame in current format from list of legacy
+    formatted dataframes"""
+    # format each dataframe in the list, combine them into one new dataframe with a new index
+    full = pd.concat([legacy_to_recent(df) for df in df_list], ignore_index=True)
+    # Allowing us to keep the ride_id column for the newer dataframes since none of the existing
+    # ride ids are integers
+    full['ride_id'] = pd.Series(range(len(full)))
+    # The columns are slightly out of order, since we defined a new column 'rideable_type'
+    # with our legacy_to_recent function which is the second column in the new format.
+    # and then defined a ride_id which is the first. We first reorder the columns:
+    cols = [col for col in full.columns]
+    cols = [cols[-1], cols[-2]] + cols[:-2]
+    # And then reindex the new dataframe
+    full = full[cols]
+    
+    return full
+
+def drop_recent_cols(df):
+    """Accepts a dataframe from April of 2020 or later
+    Returns dataframe suitable for a temporary join with historical data
+    to demonstrate decisions made in EDA process as discussed in Technical
+    Notebook"""
+    return df.drop(['start_station_id', 'end_station_id', 'start_lat', 'start_lng', 'end_lat', 'end_lng'], axis=1)
+
+def drop_equity(df):
+    """This column appears in only one dataframe and is no longer reported"""
+    if 'is_equity' in df.columns:
+        result = df.drop('is_equity', axis=1)
+    else:
+        result = df
+    
+    return result
+
+def join_recent(df_list):
+    new_list = [drop_equity(df) for df in df_list]
+    return pd.concat([drop_recent_cols(df) for df in new_list], ignore_index=True)
+
+def merge_all(legacy_df_list, recent_df_list):
+    return pd.concat([join_legacy(legacy_df_list), join_recent(recent_df_list)], ignore_index=True)
+    
+
+
+## Ugly dude. Ugly. Split this up.
 def clean_frame(df):
     """Perform a number of cleaning operations on the dockless ebikes data. Return clean df.
     
