@@ -113,12 +113,23 @@ def drop_equity(df):
     
     return result
 
+
 def join_recent(df_list):
     new_list = [drop_equity(df) for df in df_list]
     return pd.concat([drop_recent_cols(df) for df in new_list], ignore_index=True)
 
+def clean_merged(df):
+    """Quick wrapper to allow datetime operations during EDA"""
+    df['started_at'] = pd.to_datetime(df['started_at'])
+    df['ended_at'] = pd.to_datetime(df['ended_at'])
+    merged_df = df.set_index('started_at')
+    merged_df = merged_df.sort_index()
+    return merged_df
+
 def merge_all(legacy_df_list, recent_df_list):
-    return pd.concat([join_legacy(legacy_df_list), join_recent(recent_df_list)], ignore_index=True)
+    temp = pd.concat([join_legacy(legacy_df_list), join_recent(recent_df_list)], ignore_index=True)
+    return clean_merged(temp)
+
     
 
 

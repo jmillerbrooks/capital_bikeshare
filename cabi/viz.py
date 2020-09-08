@@ -3,7 +3,8 @@ import geopandas as gpd
 import numpy as np
 import matplotlib.pyplot as plt
 from statsmodels.graphics.tsaplots import plot_pacf, plot_acf
-from cabi.etl.get_data import anc_gdf
+from cabi.etl.extract import anc_gdf
+import datetime as dt
 
 gdf = anc_gdf()
 
@@ -11,6 +12,54 @@ def plot_trips(df):
     ax = gdf.plot(figsize=(10, 10), alpha=0.5, edgecolor='k')
     sns.scatterplot(x='start_lng', y='start_lat', data=df, ax=ax)
     pass
+
+def plot_daily_counts(daily_counts):
+    """Helper function for streamlining technical notebook"""
+    fig, (axe, axe1, axe2) = plt.subplots(3, 1, sharey=True, figsize=(24, 9))
+
+    plt.style.use('seaborn-deep')
+
+
+    daily_counts = daily_counts.rideable_type
+
+    nineteen = daily_counts[(daily_counts.index < '2020-01-01') & (daily_counts.index > '2019-01-01')]
+    eighteen = daily_counts[daily_counts.index < '2019-01-01']
+    twenty = daily_counts[daily_counts.index >= '2020-01-01']
+
+    # Moving averages
+    rolling_eighteen = eighteen.rolling(window=15).mean()
+    rolling_nineteen = nineteen.rolling(window=15).mean()
+    rolling_twenty = twenty.rolling(window=15).mean()
+
+
+    axe.plot(eighteen)
+    axe.plot(rolling_eighteen, color = 'green')
+    axe.axhline(y=12500, ls = '--', color='navy')
+    axe.axhline(y=2500, ls = '--', color='orangered')
+    axe.set_xlim([dt.date(2018, 1, 1), dt.date(2018, 12, 31)])
+
+    axe1.plot(nineteen)
+    axe1.plot(rolling_nineteen, color = 'green')
+    axe1.axhline(y=12500, ls = '--', color='navy')
+    axe1.axhline(y=2500, ls = '--', color='orangered')
+    axe1.set_xlim([dt.date(2019, 1, 1), dt.date(2019, 12, 31)])
+
+
+    axe2.plot(twenty)
+    axe2.plot(rolling_twenty, color = 'red')
+    axe2.axhline(y=12500, ls = '--', color='navy')
+    axe2.axhline(y=2500, ls = '--', color='orangered')
+    axe2.set_xlim([dt.date(2020, 1, 1), dt.date(2020, 12, 31)])
+
+    
+    fig.suptitle('Daily Capital Bikeshare Ride Counts, 2018-2020', y=1.06, fontsize=28)
+    fig.text(s='Green and Red Lines are 15 Day Moving Averages', x=0.5, horizontalalignment='center', y=.99, fontsize=20)
+    fig.tight_layout()
+    # fig.savefig('../figures/dailyridecounts.png', bbox_inches='tight')
+
+    return fig, (axe, axe1, axe2)
+
+
 
 
 def plot_acf_pacf(series, nlags):
