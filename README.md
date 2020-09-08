@@ -31,25 +31,7 @@
 -->
 
 
-<!-- PROJECT LOGO -->
-<br />
-<p align="center">
 
-  <h3 align="center">Balancing Capital Bikeshare Deployment</h3>
-
-  <p align="center">
-    Modeling the flow of Capital Bikeshare rides across ANC locations.
-    <br />
-    <a href="https://github.com/jmillerbrooks/capital_bikeshare"><strong>Explore the docs »</strong></a>
-    <br />
-    <br />
-    <a href="https://github.com/jmillerbrooks/capital_bikeshare">View Demo</a>
-    ·
-    <a href="https://github.com/jmillerbrooks/capital_bikeshare/issues">Report Bug</a>
-    ·
-    <a href="https://github.com/jmillerbrooks/capital_bikeshare/issues">Request Feature</a>
-  </p>
-</p>
 
 
 ## Repository Navigation
@@ -69,7 +51,8 @@
 * [The Business Problem](#business-problem)
   * [Approach](#approach)
 * [Data Science Process](#data-science-process)
-* [Results](#results)
+* [Model Evaluation](#evaluation)
+* [Results and Business Recommendations](#results)
 * [Future Improvement](#future-improvement)
 * [License](#license)
 * [Contact](#contact)
@@ -121,16 +104,19 @@ The data were obtained from CaBi's <a href="https://s3.amazonaws.com/capitalbike
 7. Run the cells in ETL. This will reshape the data and load into postgres.
 8. Modeling and Analysis of models can be found in "Modeling" and "Scratch" notebooks.
     
-Our modeling approach is described in the Modeling and Scratch files. We attempted to fit Holt-Winters and SARIMA models for each ANC, initially selecting parameters based off of AIC score, and then best models based on RMSE. Our baseline model for comparison was a persistence model based off of a lag of six hours, since we attempted to predict spikes in bike over or undersupply over six hour periods. The seasonal component to each model was set at the frequency equivalent to a one day period for each set, as there is a pronounced seasonal daily component in each ANC. Our cross validation procedure was aided by sklearn's TimeSeriesSplit.
+Our modeling approach is described in the Modeling and Scratch files. We attempted to fit Holt-Winters and SARIMA models for each ANC, initially selecting parameters based off of AIC score, and then best models based on RMSE. Our baseline model for comparison was a persistence model based off of a lag of six hours, since we attempted to predict spikes in bike over or undersupply over six hour periods. The seasonal component to each model was set at the frequency equivalent to a one day period for each set, as there is a pronounced seasonal daily component in each ANC. Our cross validation procedure was aided by pmdarima's SlidingWindowForecast.
 
+<!-- evaluation -->
+## Model Evaluation
 
+Our error metrics yielded RMSE for most of the larger "hotspot" ANCs of around 5-8 for a 24 hour prediction period of six hour change in bikes (i.e. +/- 5-8 bikes change over six hours incorrectly for each six hour window in the day). Our additional criteria of SMAPE paints a less forgiving picture as it indicated we were typically off by between 30-50% with widely varying estimates. This makes the model less useful from a practical perspective, although we argue that it is typically either randomly wrong by a little bit in either direction, or consistently underpredicting at predictable intervals (weekends) where the direction of prediction (gain/loss in bikes) is generally correct. This was due to the inability to account accurately for a varying but pronounced weekly seasonality concurrently with the more regular daily pattern. This does however leave the door open for decent use case. Since the errors are usually not large, or large but predictable.
 
 
 
 <!-- Results -->
-## Results
+## Results and Business Recommendations
 
-Based off of our modeling, we selected a tuned SARIMA model that best described each Advisory Neighborhood Commission in DC. We recommend the implementation of the models in tandem to allow for areas of predicted oversupply to be rebalanced to areas of predicted shortage.
+We recommend implementing a test case of our model, where the weekend peak/troughs are manually adjusted by the average factor of prediction error to actual value of the last four 1 week periods in a roughly three hour window around the extrema. Recommended use case is to preemptively redistribute bikes from areas of predicted build up (oversupply) to areas of predicted drain (high demand), approximately 3 hours before 6 hour gain/loss peaks/troughs. The weekend periods during the ongoing COVID period represent an especially good time to test the approach of manually supplementing the model by an error factor as discussed above, due to the increased variability resulting in consistently uneven distributions of bicycle supply.
     
 ![Example Model Results][example-model-results]
 <sub>Example Model Forecast </sub>
@@ -140,7 +126,11 @@ Based off of our modeling, we selected a tuned SARIMA model that best described 
 <!-- Future Improvement -->
 ## Future Improvement
 
-Please find areas for future improvement in the slide deck in the [Presentation Folder][presentation-folder]
+Next Steps
+
+A major limitation of the modeling approach we implemented was that it was tied to an implicit variable (space) which was semi-arbitrarily selected. This is worse than being a completely arbitrary political unit, because Advisory Neighborhood Commissions vary widely in density, and thus some spatial patterns may be influencing the units we modeled without being fully accounted for as this is not a holistic system. We therefore recommend first and foremost either a density based clustering of spatial areas as model units, or a hierarchical aggregation of results as a HiTS (Hierarchical Time Series) approach.
+
+The Markov method is also a strong next step as soon as out of sample predictions are supported.
 
 
 
