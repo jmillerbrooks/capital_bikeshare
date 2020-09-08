@@ -91,7 +91,7 @@ def load_trips():
     
     return df
 
-def write_postgres(df, table_name='trips_long'):
+def write_postgis(df, table_name='trips_long'):
     """Create or append to existing sql table in our database 
     the results of transformed df"""
     
@@ -134,3 +134,37 @@ def write_postgres(df, table_name='trips_long'):
     
     pass
 
+def write_postgres(df, table_name='plus_minus'):
+    """Simple wrapper around a sql query to use where no additional transformation
+    of data formats is necessary to fit into new target table
+    Creates a postrgresql table (by default named 'plus_minus') in the CABI database
+    from a pandas DataFrame by calling to_sql with the sqlalchemy
+    engine created from the user supplied information in config.py"""
+    
+    # Create a sql engine with the params user specifies in config.py
+    # to use in connecting to the database we will be writing to
+    engine = sqlalchemy.create_engine(conn)
+    
+    # Call pandas to_sql method passing the table name and engine
+    # use append as described above in write_postgis
+    # Pass index to ensure it's written as a column
+    # giving column name 'time' note, it is recommended 
+    # that the user not utilize chunksize on either read or write
+    # unless they have detailed knowledge of how it works, as it 
+    # will be much easier to maintain the order of the records
+    # without it. Further approaches to timeseries indexing
+    # in sql were outside of the scope of this project, but numerous
+    # resources are available with a quick google search if the user
+    # is curious
+    df.to_sql(
+    table_name,
+    engine,
+    if_exists='append',
+    index=True,
+    index_label='time'
+    )
+    
+    # Ensure db connections are closed
+    engine.dispose()
+    
+    pass

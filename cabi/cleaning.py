@@ -142,11 +142,15 @@ def clean_frame(df):
     Returns: (df) a cleaned pandas DataFrame of trip data on dockless ebikes from Capital Bikeshare"""
     
     
-    # Remove trips that have missing lat/lng coords
+    # Remove trips that have missing lat/lng coords briefly considered imputation
+    # but the fact that all of these are missing station values as well
+    # makes a strong case for this just being bad data
     df = df.loc[~(df.start_lat.isna() | df.start_lng.isna())]
     df = df.loc[~(df.end_lat.isna()| df.end_lng.isna())]
     
-    # Variable to hold the location of the warehouse, these trips should not be included in analysis
+    # Variable to hold the location of the CaBi warehouse, these trips should not be included in analysis
+    # as they are presumably maintenance related and many of them are the terminus of extremely 
+    # long trips suggesting recovered bikes being taken out of circulation
     warehouse = '6035 Warehouse'
     
     # Remove trips that end at the warehouse

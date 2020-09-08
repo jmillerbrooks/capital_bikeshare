@@ -8,6 +8,7 @@ from cabi.etl.extract import anc_gdf, dc_polygon, load_station_info, load_outsid
 
 
 gdf = anc_gdf()
+
 stations_df = load_station_info()
 outside_regions = load_outside_regions()
 dc_boundary = dc_polygon()
@@ -168,3 +169,17 @@ def in_dc(point):
     """
     
     return point.within(dc_boundary) 
+
+def dc_station_coords():
+    """Return the outputs of station_coords that are within dc boundary"""
+    stations = station_coords()
+    # Define a DC true false column with the in_dc function
+    stations['dc'] = stations.coord_station.map(in_dc)
+    
+    # subset the dc stations
+    dc_stations = stations[stations['dc']]
+    # Set CRS to ensure compatibility with contextily maps
+    dc_stations = dc_stations.set_crs("EPSG:4326")
+    dc_stations = dc_stations.to_crs(epsg=3857)
+    
+    return dc_stations

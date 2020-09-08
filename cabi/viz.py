@@ -4,9 +4,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 from statsmodels.graphics.tsaplots import plot_pacf, plot_acf
 from cabi.etl.extract import anc_gdf
+from cabi.geometry import dc_station_coords
 import datetime as dt
+import contextily as ctx
 
 gdf = anc_gdf()
+# Create instance compatible with contextily coordinate scheme for mapping
+ctx_gdf = anc_gf()
+ctx_gdf = ctx_gdf.set_crs("EPSG:4326")
+ctx_gdf = ctx_gdf.to_crs(epsg=3857)
+
+# Create DC Stations for mapping
+
 
 def plot_trips(df):
     ax = gdf.plot(figsize=(10, 10), alpha=0.5, edgecolor='k')
@@ -128,6 +137,17 @@ def residual_plot(model):
     return fig, ax
 
 
-
+def station_anc_map():
+    """Plot function for the DC stations overlaid on ANC map"""
+    fig, ax = plt.subplots(figsize=(10,12))
+    ctx_gdf.plot(figsize=(10, 10), alpha=0.5, edgecolor='red', ax=ax)
+    ax.set_aspect('equal')
+    ctx.add_basemap(ax, alpha=0.5)
+    dc_stations.plot(ax=ax, color='yellow', alpha=0.6)
+    ax.set_title('DC Capital Bikeshare stations with ANC boundaries', fontsize=18)
+    ax.set(xticks=[], yticks=[])
+    fig.tight_layout()
+    plt.show();
+    return fig, ax
 
         
