@@ -15,7 +15,7 @@ ctx_gdf = ctx_gdf.set_crs("EPSG:4326")
 ctx_gdf = ctx_gdf.to_crs(epsg=3857)
 
 # Create DC Stations for mapping
-
+dc_stations = dc_station_coords()
 
 def plot_trips(df):
     ax = gdf.plot(figsize=(10, 10), alpha=0.5, edgecolor='k')
