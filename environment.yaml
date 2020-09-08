@@ -20,3 +20,4 @@ dependencies:
   - geoalchemy2
   - scikit-learn
   - pandas
+  - descartes

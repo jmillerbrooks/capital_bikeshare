@@ -10,7 +10,7 @@ import contextily as ctx
 
 gdf = anc_gdf()
 # Create instance compatible with contextily coordinate scheme for mapping
-ctx_gdf = anc_gf()
+ctx_gdf = anc_gdf()
 ctx_gdf = ctx_gdf.set_crs("EPSG:4326")
 ctx_gdf = ctx_gdf.to_crs(epsg=3857)
 

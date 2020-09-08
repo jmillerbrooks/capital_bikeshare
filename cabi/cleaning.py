@@ -118,6 +118,11 @@ def join_recent(df_list):
     new_list = [drop_equity(df) for df in df_list]
     return pd.concat([drop_recent_cols(df) for df in new_list], ignore_index=True)
 
+def join_recent_mod(df_list):
+    """The same as join_recent but without dropping the columns we need for long_geo below"""
+    new_list = [drop_equity(df) for df in df_list]
+    return pd.concat(new_list)
+
 def clean_merged(df):
     """Quick wrapper to allow datetime operations during EDA"""
     df['started_at'] = pd.to_datetime(df['started_at'])
@@ -145,8 +150,8 @@ def clean_frame(df):
     # Remove trips that have missing lat/lng coords briefly considered imputation
     # but the fact that all of these are missing station values as well
     # makes a strong case for this just being bad data
-    df = df.loc[~(df.start_lat.isna() | df.start_lng.isna())]
-    df = df.loc[~(df.end_lat.isna()| df.end_lng.isna())]
+    df = df.loc[~(df['start_lat'].isna() | df['start_lng'].isna())]
+    df = df.loc[~(df['end_lat'].isna() | df['end_lng'].isna())]
     
     # Variable to hold the location of the CaBi warehouse, these trips should not be included in analysis
     # as they are presumably maintenance related and many of them are the terminus of extremely 
@@ -154,23 +159,23 @@ def clean_frame(df):
     warehouse = '6035 Warehouse'
     
     # Remove trips that end at the warehouse
-    df = df.loc[df.end_station_name != warehouse]
+    df = df.loc[df['end_station_name'] != warehouse]
     
     # Convert all datetimes to datetime format
-    df['started_at'] = pd.to_datetime(df.started_at)
-    df['ended_at'] = pd.to_datetime(df.ended_at)
+    df['started_at'] = pd.to_datetime(df['started_at'])
+    df['ended_at'] = pd.to_datetime(df['ended_at'])
     
     # Add duration_seconds column
-    df['duration'] = df.ended_at - df.started_at
-    df['duration_seconds'] = df.duration.dt.total_seconds()
+    df['duration'] = df['ended_at'] - df['started_at']
+    df['duration_seconds'] = df['duration'].dt.total_seconds()
 
     cleaned_df = df.drop(['duration'], axis=1)
     
 
     # Remove trips that last longer than 15 hours (outliers)
-    cleaned_df = cleaned_df.loc[cleaned_df.duration_seconds < 60*60*15]
+    cleaned_df = cleaned_df.loc[cleaned_df['duration_seconds'] < 60*60*15]
     # Remove trips with negative duration
-    cleaned_df = cleaned_df.loc[cleaned_df.duration_seconds > 0]
+    cleaned_df = cleaned_df.loc[cleaned_df['duration_seconds'] > 0]
 
     # Remove start_station_id and end_station_id, this information is duplicated in station name cols, as well as lng/lat combination
     cleaned_df = cleaned_df.drop(['start_station_id', 'end_station_id'], axis=1)
@@ -291,9 +296,9 @@ def full_transform(df):
     Accepts Raw Data from (FOR RIGHT NOW JUST APR to JUL)
     Returns Long Format Data to Load into POSTGIS db"""
     transformed = clean_frame(df)
-    transformed = to_geo(transformed)
-    transformed = rename_columns(transformed)
-    long = to_long(transformed)
+    geo = to_geo(transformed)
+    renamed = rename_columns(geo)
+    long = to_long(renamed)
     return long
     
     
