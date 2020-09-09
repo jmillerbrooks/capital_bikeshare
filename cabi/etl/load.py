@@ -53,7 +53,7 @@ def load_counts_full():
     FROM plus_minus
     """
     
-    df = pd.read_sql(
+    df = pd.read_postgis(
         query,
         engine,
         parse_dates='time'
@@ -73,14 +73,16 @@ def load_trips():
     
     engine = sqlalchemy.create_engine(conn)
     
+    connection = engine.connect()
     query = f"""
-    SELECT * "
+    SELECT * 
     FROM trips_long
     """
 
-    df = pd.read_sql(
+    df = gpd.read_sql(
         query,
-        engine,
+        connection,
+        geom_col='geom_coord',
         parse_dates='time'
     ).set_index(
         'time'
