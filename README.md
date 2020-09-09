@@ -69,7 +69,7 @@
 
 There are common patterns of commuter behavior with users of the Capital Bikeshare system. This results in uneven patterns of supply and demand for both bikes (as in the above image), and parking space (wherever all those folks went!). We develop recommendations for planning and fleet rebalancing using a number of different time series techniques on trip data obtained from CaBi's <a href="https://s3.amazonaws.com/capitalbikeshare-data/index.html"> historical ride sets.</a>
 
-There has been a fair amount of work done (INSERT LINKS) modeling various aspect of stations within the CaBi system, as well as other docked bikeshare systems worldwide. However, the recent <a href="https://dcist.com/story/20/07/07/capital-bikeshare-electric-bikes-return-lyft/"> introduction of ebikes</a> in July represents the early stages of a slightly more nuanced modeling problem. The main difference between the new ebikes, and the traditional docked bikes (other than the pedal assist), is that the ebikes do not need to be parked in a dock at the end of a ride. Though around 75% of ebike rides followed traditional docking behavior in the first month of operation, the "dockless" trend grew from just a few rides initially to greater numbers toward the end of the month.
+There has been a fair amount of work done modeling various aspect of stations within the CaBi system, as well as other docked bikeshare systems worldwide. However, the recent <a href="https://dcist.com/story/20/07/07/capital-bikeshare-electric-bikes-return-lyft/"> introduction of ebikes</a> in July represents the early stages of a slightly more nuanced modeling problem. The main difference between the new ebikes, and the traditional docked bikes (other than the pedal assist), is that the ebikes do not need to be parked in a dock at the end of a ride. Though around 75% of ebike rides followed traditional docking behavior in the first month of operation, the "dockless" trend grew from just a few rides initially to greater numbers toward the end of the month.
 
 In light of this development, it seems the future modeling problem may well be centered more around modeling more abstract geographic locations than individual stations. We attempt a first approach at a geographically centered solution, by prototyping on the existing Advisory Neighborhood Commission boundaries, which divide the District of Columbia into 40 unique geographies. Within each ANC we then attempt to answer the following three items described below.
 
@@ -157,7 +157,7 @@ Project Link: [https://github.com/jmillerbrooks/capital_bikeshare](https://githu
 <!-- ACKNOWLEDGEMENTS -->
 ## Acknowledgements
 
-Please find sources in the slide deck in the [Presentations Folder][presentation-folder]
+Please find sources in the slide deck in the [Presentations Folder][presentation-folder] and additional sources in the Technical notebook in notebooks.
 
 
 
