@@ -53,7 +53,7 @@ def load_counts_full():
     FROM plus_minus
     """
     
-    df = pd.read_postgis(
+    df = gpd.read_postgis(
         query,
         engine,
         parse_dates='time'
